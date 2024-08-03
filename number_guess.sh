@@ -19,7 +19,10 @@ games_played=$($PSQL "SELECT games_played FROM players WHERE username = '$userna
 best_game=$($PSQL "SELECT best_game FROM players WHERE username = '$username';")
 
 if [[ -z $result ]]; then
+  new_user=$($PSQL "INSERT INTO players (username, games_played, best_game) VALUES ('$username',0,2000);")
   echo "Welcome, $username! It looks like this is your first time here."
+  games_played=0
+  best_game=1000
 else
   echo "Welcome back, $username! You have played $games_played games, and your best game took $best_game guesses."
 fi
@@ -59,3 +62,12 @@ done
 echo "You guessed it in $guesscount tries. The secret number was $random_number. Nice job!"
 
 #Save result to database:
+
+if [ "$guesscount" -lt "$best_game" ]; then
+  best_game=$guesscount
+fi
+
+((games_played++))
+
+finish=$($PSQL "UPDATE players SET games_played = '$games_played', best_game = '$best_game' WHERE username = '$username';")
+
