@@ -5,6 +5,9 @@ PSQL="psql --username=freecodecamp --dbname=user_data -t --no-align -c"
 #Number guessing game: User tries to guess a randomly generated number from 1 to 1000.
 #The username, number of games played, and highscore are then recorded into a PostgreSQL database.
 
+
+#Check if returning user:
+
 echo 'Enter your username:'
 
 read username
@@ -21,10 +24,20 @@ else
   echo "Welcome back, $username! You have played $games_played games, and your best game took $best_game guesses."
 fi
 
+#Run the number guessing game:
+
 echo "Guess the secret number between 1 and 1000:"
 random_number=$(( ( RANDOM % 1000 ) + 1 ))
 
 read userguess
+
+while ! [[ $userguess =~ ^[0-9]+$ ]]; do
+  echo "That is not an integer, guess again:"
+  read userguess
+done
+
+
+
 guesscount=1
 
 while [ "$userguess" != "$random_number" ]
@@ -35,6 +48,14 @@ do
       echo "It's higher than that, guess again:"
     fi
     read userguess
+
+    while ! [[ $userguess =~ ^[0-9]+$ ]]; do
+    echo 'That is not an integer, guess again:'
+    read userguess
+    done
+
     ((guesscount++))   
 done
 echo "You guessed it in $guesscount tries. The secret number was $random_number. Nice job!"
+
+#Save result to database:
